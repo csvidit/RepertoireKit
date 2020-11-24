@@ -7,11 +7,13 @@ import java.nio.file.Files;
 public class Recipe{
     
     private File recipeFile;
+    private Section section;
     private FileWriter writer;
     private String recipeName;
     private LocalTime estimatedTime;
     private ArrayList<Quantity> ingredients;
     private Repertoire repertoire;
+    private Procedure procedure;
 
     public Recipe(String recipeName, Repertoire repertoire)
     {
@@ -61,6 +63,24 @@ public class Recipe{
     public void getName(String newRecipeName)
     {
         recipeName=newRecipeName;
+    }
+
+    public void setToProcedureFromFile(String newStep)
+    {
+        procedure.addStepFromFile(newStep);
+    }
+
+    public void 
+
+    public String getIngredientString()
+    {
+        String ingredientString="";
+        Iterator<Quantity> ingredientsIter = ingredients.iterator();
+        while(ingredientsIter.hasNext())
+        {
+            ingredientString+=(ingredientsIter.next().getIngredientName()+" ");
+        }
+        return ingredientString;
     }
 
     @Override

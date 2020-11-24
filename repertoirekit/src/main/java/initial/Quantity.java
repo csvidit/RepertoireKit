@@ -46,7 +46,7 @@ public class Quantity implements Comparable{
     @Override
     public String toString()
     {
-        return(ingredient.getName()+" - "+Float.toString(quantity));
+        return(ingredient.getName()+" - "+Float.toString(quantity)+"\n");
     }
 
     @Override

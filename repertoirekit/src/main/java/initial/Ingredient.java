@@ -17,7 +17,7 @@ public class Ingredient implements Comparable{
     @Override
     public String toString()
     {
-        return name;
+        return name+"\n";
     }
 
     public int compareTo(Ingredient x)

@@ -1,16 +1,87 @@
 package initial;
 
 import java.util.*;
+
+import com.google.common.io.Files;
+
 import java.time.*;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class Driver {
+
+    public static Repertoire book;
+
+    public static void loadBook() {
+
+        book = new Repertoire("My Book", "Vidit Khandelwal");
+        File directoryPath = new File("C:\\Users\\vidit\\recipes");
+        File filesList[] = directoryPath.listFiles();
+        for (int i = 0; i < filesList.length; i++) 
+        {
+            File currFile = filesList[i];
+            loadFile(currFile);
+        }
+    }
+
+    public static void loadFile(File currFile)
+    {
+        if(Files.isReadable())
+        {
+            String fileName = currFile.getName();
+            String recipeName = Files.getNameWithoutExtension(fileName);
+
+            if(recipeName.equals(Files.asCharSource(currFile, StandardCharsets.UTF_8).readFirstLine()))
+            {
+                Recipe newRecipe = new Recipe(recipeName, book);
+                try 
+                {
+                    List<String> fileLinesList = Files.asCharSource(currFile, StandardCharsets.UTF_8).readLines();
+                    Iterator<String> fileLinesListIter = fileLinesList.iterator();
+                    fileLinesListIter.next();
+                    fileLinesListIter.next();
+                    fileLinesListIter.next();
+                    while(fileLinesListIter.hasNext())
+                    {
+                        String temp=fileLinesListIter.next();
+                        String tempWords[]=temp.split(" ");
+                        while(temp.equals("Procedure: ")==false)
+                        {
+                            String ingredientName=tempWords[0];
+                            float quantity=Float.parseFloat(tempWords[1]);
+                            Units unit=Enum.valueOf(Units.class, tempWords[2].toUpperCase());
+                            newRecipe.addIngredient(ingredientName, quantity, unit);
+                        }
+                        while(temp.equals("--endl--")==false)
+                        {
+                            newRecipe.setToProcedure().addStepFromFile(temp);
+                        }
+                    }
+                } 
+                catch (IOException e) 
+                {
+                    System.err.print("\nIOException in Driver.loadFile");
+                    return;
+                }
+            }
+            else
+            {
+                System.err.print("\nRepertoireKitSystem error : File Name does not match Recipe Name or other such error.");
+                return;
+            }
+            
+        }
+    }
     
     public static void main(String[] args) 
     {
-        Repertoire book = new Repertoire("Croquembouche", "Vidit Khandelwal");
+        System.out.print("\nPlease wait while RepertoireKit loads...");
+        loadBook();
+        
         Scanner sc = new Scanner(System.in);
-        System.out.print("\nWelcome to Vidit Khandelwal's RecipeKit Recipe Management System.");
+        System.out.print("\nWelcome to Vidit Khandelwal's RepertoireKit Recipe Management System."+
+        "\nRepertoireKit is available at https://github.com/csvidit/RepertoireKit under the MIT License");
         while(true)
         {
             String command="", commWords[]=null, secComm="", tertComm="", tertCommWords[]=null, quartComm="", quinComm="", quinCommWords[]=null;

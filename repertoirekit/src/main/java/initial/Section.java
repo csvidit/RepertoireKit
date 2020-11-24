@@ -17,7 +17,7 @@ public class Section implements Comparable{
     @Override
     public String toString()
     {
-        return sectionName;
+        Collection<Recipe> recipeCollection = 
     }
 
     public int compareTo(Section x)
