@@ -1,9 +1,14 @@
 package initial;
 
 import java.util.*;
+import java.io.*;
+import java.time.*;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.*;
 
 public class Repertoire
@@ -30,7 +35,7 @@ public class Repertoire
 
     }
 
-    public boolean addRecipe(String recipeName)
+    public boolean addRecipe(String sectionName, String recipeName)
     {
         if(++numRecipes>MAX_QUANTITY)
         {
@@ -38,32 +43,27 @@ public class Repertoire
         }
         else
         {
-            //recipes.add(newRecipe);
-            Scanner input = new Scanner(System.in);
-            System.out.print("\nEnter the section where you would like to insert this recipe."
-            +"\nIf that section does not exist, it will be created for you."+"\nEnter the section: ");
-            String sectionName = input.nextLine();
-            sectionName.trim();
-            sectionName.toUpperCase();
-            Recipe newRecipe = new Recipe(recipeName, this);
-            Iterator<Section> sectionsIter = sections.keySet().iterator();
-            boolean isAdded=false;
-            while(sectionsIter.hasNext())
+            Section currSection = doesSectionExist(sectionName);
+            Recipe currRecipe = doesRecipeExist(recipeName);
+            if(currSection!=null)
             {
-                Section tempSec = sectionsIter.next();
-                if(tempSec.toString().equals(sectionName))
+                if(currRecipe==null)
                 {
-                    sections.put(tempSec, newRecipe);
-                    isAdded=true;
+                    Recipe newRecipe = new Recipe(recipeName, this);
+                    sections.put(currSection, newRecipe);
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
-            if(isAdded==false)
+            else
             {
                 Section newSection = new Section(sectionName);
-                sections.put(newSection, newRecipe);
+                Recipe newRecipe = new Recipe(recipeName, this);
+                return true;
             }
-            input.close();
-            return true;
         }
     }
 
@@ -173,6 +173,7 @@ public class Repertoire
         if(sections.containsEntry(thisSection, thisRecipe))
         {
             sections.remove(thisSection, thisRecipe);
+            return true;
         }
         else
         {
@@ -191,6 +192,22 @@ public class Repertoire
             if(tempSec.toString().equals(sectionName))
             {
                 return tempSec;
+            }
+        }
+        return null;
+    }
+
+    public Recipe doesRecipeExist(String recipeName)
+    {
+        recipeName=recipeName.toUpperCase();
+        recipeName=recipeName.trim();
+        Iterator<Recipe> recipesIter = sections.values().iterator();
+        while(recipesIter.hasNext())
+        {
+            Recipe tempRecipe = recipesIter.next();
+            if(tempRecipe.toString().equals(recipeName))
+            {
+                return tempRecipe;
             }
         }
         return null;
@@ -217,15 +234,14 @@ public class Repertoire
         return ingredients.keySet();
     }
 
-    public HashMap<Ingredient, ArrayList<Recipe>> getIngredientMap()
-    {
-        return ingredients;
-    }
-
     public void addIngredient(Ingredient newIngredient, Recipe newRecipe)
     {
-        Collection newCollection = 
         ingredients.put(newIngredient, newRecipe);
+    }
+
+    public Recipe getByName(String recipeName)
+    {
+        return doesRecipeExist(recipeName);
     }
 
     public Collection<Recipe> getByIngredient(String ingredientName)
@@ -260,14 +276,74 @@ public class Repertoire
         return sections.get(thisSection);
     }
 
-    
-    /*public ArrayList<Recipe> getByIngredient(Ingredient userIngredient)
+    public ArrayList<Recipe> getByTime(LocalTime thisTime)
     {
-
+        ArrayList<Recipe> searchResults = new ArrayList<Recipe>();
+        Iterator<Recipe> recipesIter=sections.values().iterator();
+        while(recipesIter.hasNext())
+        {
+            Recipe tempRecipe = recipesIter.next();
+            if(tempRecipe.getTime().equals(thisTime) || tempRecipe.getTime().isBefore(thisTime))
+            {
+                searchResults.add(tempRecipe);
+            }
+        }
+        return searchResults;
     }
-    public ArrayList<Recipe> getByTime(LocalTime userTime)
-    {
 
-    }*/
+    public Collection<Recipe> getByTime(int minutes)
+    {
+        ArrayList<Recipe> searchResults = new ArrayList<Recipe>();
+        Iterator<Recipe> recipesIter=sections.values().iterator();
+        while(recipesIter.hasNext())
+        {
+            Recipe tempRecipe = recipesIter.next();
+            int tempMinutes=(tempRecipe.getTime().getHour()*60)+(tempRecipe.getTime().getMinute())+(tempRecipe.getTime().getSecond()/60);
+            if(tempMinutes<=minutes)
+            {
+                searchResults.add(tempRecipe);
+            }
+        }
+        return searchResults;
+    }
+
+    public Collection<Recipe> searchEngine(String query)
+    {
+        ArrayList<Recipe> searchResults = new ArrayList<Recipe>();
+        String queryWords[]=query.split(" ");
+        if(queryWords[1].equalsIgnoreCase("time"))
+        {
+            return getByTime(Integer.parseInt(queryWords[2]));
+        }
+        else if(queryWords[1].equalsIgnoreCase("recipe"))
+        {
+            searchResults.add(getByName(queryWords[2]));
+            return searchResults;
+        }
+        else if(queryWords[1].equalsIgnoreCase("section"))
+        {
+            return getBySection(queryWords[2);
+        }
+        else if(queryWords[0].equalsIgnoreCase("for"))
+        {
+            HashSet<Recipe> recipeSet = new HashSet<Recipe>();
+            String newQuery=query.substring(11);
+            Iterator<Recipe> recipesIter = sections.values().iterator();
+            while(recipesIter.hasNext())
+            {
+                Recipe tempRecipe = recipesIter.next();
+                if(tempRecipe.getName().indexOf(newQuery)>-1)
+                {
+                    recipeSet.add(tempRecipe);
+                }
+                else if(tempRecipe.getIngredientString().indexOf(newQuery)>-1)
+                {
+                    recipeSet.add(tempRecipe);
+                }
+                searchResults.addAll(recipeSet);
+            }
+        }
+        return searchResults;
+    }
 
 }
