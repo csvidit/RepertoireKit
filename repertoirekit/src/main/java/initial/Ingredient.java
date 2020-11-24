@@ -1,6 +1,6 @@
 package initial;
 
-public class Ingredient {
+public class Ingredient implements Comparable{
     
     private String name;
 
@@ -18,6 +18,11 @@ public class Ingredient {
     public String toString()
     {
         return name;
+    }
+
+    public int compareTo(Ingredient x)
+    {
+        return x.toString().compareTo(this.name);
     }
 
 }
