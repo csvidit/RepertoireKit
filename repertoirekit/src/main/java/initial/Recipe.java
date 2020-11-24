@@ -43,9 +43,31 @@ public class Recipe{
         this.estimatedTime=estimatedTime;
     }
 
+    public void setTime(int hours, int minutes, int seconds)
+    {
+        this.estimatedTime=LocalTime.of(hours, minutes, seconds);
+    }
+
     public LocalTime getTime()
     {
         return estimatedTime;
+    }
+
+    public String getName()
+    {
+        return recipeName;
+    }
+
+    public void getName(String newRecipeName)
+    {
+        recipeName=newRecipeName;
+    }
+
+    @Override
+    public boolean equals(Recipe anotherRecipe) {
+        
+        if(this.recipeName.equalsIgnoreCase(anotherRecipe.getName()) && this.getTime().equals(anotherRecipe.getTime()) && /*incomplete*/)
+
     }
 
     //public void addIngredient() throws IOException
@@ -66,7 +88,7 @@ public class Recipe{
             inputWords=newIngredient.split(" ");
             Ingredient inputIngredient = new Ingredient(inputWords[0]);
             boolean doesExist=false;;
-            Iterator quantityIter = ingredients.iterator();
+            Iterator<Quantity> quantityIter = ingredients.iterator();
             while(quantityIter.hasNext())
             {
                 if(((Quantity) quantityIter.next()).getIngredientName().equals(inputWords[0]))
@@ -117,7 +139,5 @@ public class Recipe{
         }
 
     }
-
-
     
 }

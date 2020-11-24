@@ -5,6 +5,7 @@ import java.util.*;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.*;
+
 public class Repertoire
 {
     public static final int MAX_QUANTITY=Short.MAX_VALUE;
@@ -18,9 +19,6 @@ public class Repertoire
     private ListMultimap<Section, Recipe> sections;
     private ListMultimap<Ingredient, Recipe> ingredients;
 
-    //private LinkedHashMap<Section, ArrayList<Recipe>> sections;
-    //private HashMap<Ingredient, ArrayList<Recipe>> ingredients;
-
     public Repertoire(String bookName, String author)
     {
         this.author=author;
@@ -29,9 +27,6 @@ public class Repertoire
 
         sections=MultimapBuilder.treeKeys().arrayListValues().build();
         ingredients=MultimapBuilder.treeKeys().arrayListValues().build();
-
-        //sections = new LinkedHashMap<Section, ArrayList<Recipe>>();
-        //ingredients = new  HashMap<Ingredient, ArrayList<Recipe>>();
 
     }
 
@@ -118,7 +113,7 @@ public class Repertoire
         }
     }
 
-    public boolean addRecipe(Recipe thisRecipe, Section thisSection)
+    public boolean addRecipe(Section thisSection, Recipe thisRecipe)
     {
         if(++numRecipes>MAX_QUANTITY)
         {
@@ -133,15 +128,22 @@ public class Repertoire
 
     public boolean deleteRecipe(String recipeName)
     {
-        Iterator<Recipe> recipesIter = sections.values().iterator();
-        while(recipesIter.hasNext())
+        Iterator<Section> sectionsIter = sections.keySet().iterator();
+        while(sectionsIter.hasNext())
         {
-            Recipe tempRecipe = recipesIter.next();
-            if(tempRecipe.getName().equalsIgnoreCase(recipeName))
+            Section tempSection = sectionsIter.next();
+            Iterator<Recipe> recipesIter = sections.get(tempSection).iterator();
+            while(recipesIter.hasNext())
             {
-                //code
+                Recipe tempRecipe = recipesIter.next();
+                if(tempRecipe.getName().equalsIgnoreCase(recipeName))
+                {
+                    sections.remove(tempSection, tempRecipe);
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     public boolean deleteRecipe(String sectionName, String recipeName)
@@ -166,6 +168,17 @@ public class Repertoire
             return false;
         }
     }
+    public boolean deleteRecipe(Section thisSection, Recipe thisRecipe)
+    {
+        if(sections.containsEntry(thisSection, thisRecipe))
+        {
+            sections.remove(thisSection, thisRecipe);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     public Section doesSectionExist(String sectionName)
     {
@@ -178,6 +191,22 @@ public class Repertoire
             if(tempSec.toString().equals(sectionName))
             {
                 return tempSec;
+            }
+        }
+        return null;
+    }
+
+    public Ingredient doesIngredientExist(String ingredientName)
+    {
+        ingredientName=ingredientName.toUpperCase();
+        ingredientName=ingredientName.trim();
+        Iterator<Ingredient> ingredientsIter = ingredients.keys().iterator();
+        while(ingredientsIter.hasNext())
+        {
+            Ingredient tempIngredient = ingredientsIter.next();
+            if(tempIngredient.toString().equals(ingredientName))
+            {
+                return tempIngredient;
             }
         }
         return null;
@@ -199,21 +228,39 @@ public class Repertoire
         ingredients.put(newIngredient, newRecipe);
     }
 
-    public List<Recipe> getByIngredient(String ingredientName)
+    public Collection<Recipe> getByIngredient(String ingredientName)
     {
-        Iterator<Ingredient> ingredientsIter = getIngredients().iterator();
-        Ingredient temp;
-        List<Recipe> requestedList = new List<Recipe>;
-        while(ingredientsIter.hasNext())
+        Ingredient currIngredient = doesIngredientExist(ingredientName);
+        if(currIngredient!=null)
         {
-            temp=ingredientsIter.next();
-            if(temp.toString().equalsIgnoreCase(ingredientName))
-            {
-                requestedList.add(ingredients.get(temp))
-            }
+            return ingredients.get(currIngredient);
+        }
+        else
+        {
+            return null;
+        }
+
+    }
+
+    public Collection<Recipe> getBySection(String sectionName)
+    {
+        Section currSection=doesSectionExist(sectionName);
+        if(currSection!=null)
+        {
+            return sections.get(currSection);
+        }
+        else
+        {
+            return null;
         }
     }
 
+    public Collection<Recipe> getBySection(Section thisSection)
+    {
+        return sections.get(thisSection);
+    }
+
+    
     /*public ArrayList<Recipe> getByIngredient(Ingredient userIngredient)
     {
 

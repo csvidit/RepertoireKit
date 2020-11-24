@@ -1,6 +1,6 @@
 package initial;
 
-public class Quantity {
+public class Quantity implements Comparable{
 
     private Ingredient ingredient;
     private float quantity;
@@ -18,6 +18,26 @@ public class Quantity {
         this.unit=unit;
     }
 
+    public Ingredient getIngredient()
+    {
+        return ingredient;
+    }
+
+    public void setIngredient(Ingredient newIngredient)
+    {
+        this.ingredient=newIngredient;
+    }
+
+    public void setUnit()
+    {
+        //to implement
+    }
+
+    public String getUnitName()
+    {
+        return unit.toString();
+    }
+
     public String getIngredientName()
     {
         return ingredient.getName();
@@ -27,6 +47,17 @@ public class Quantity {
     public String toString()
     {
         return(ingredient.getName()+" - "+Float.toString(quantity));
+    }
+
+    @Override
+    public boolean equals(Object anotherQuantity) {
+        anotherQuantity=(Quantity)(anotherQuantity);
+        if(this.ingredient.equals(anotherQuantity.getIngredient()));
+    }
+
+    @Override
+    public int compareTo(Object anotherQuantity) {
+        //to implement
     }
 
 }
