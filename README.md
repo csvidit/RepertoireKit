@@ -24,7 +24,7 @@ After the user opens a recipe, they can enter `edit` to enter the Edit Wizard (i
 - `delete recipe` to delete the recipe. They have to answer a confirmation prompt before the recipe is actually deleted. 
 - `add ingredient <ingredientName>` which adds the ingredient if it exists elsewhere in the repertoire, or creates one if it is new. The user then enters the Quantity Edit Wizard, where they can add the quantity of the ingredient for that recipe and the corresponding unit. 
 - `edit ingredient <ingredientName>` to change the quantitiy/unit of the ingredient for that recipe. Currently, the system does not support editing the name of the ingredient after it has been added.
-- `delete ingredient <ingredientName>` to delete the ingredient from the recipe, but not from the system. If no other recipes reference the ingredient, then it is garbage collected by the JVM at some point (the system does not deal with garbage collection). 
+- `delete ingredient <ingredientName>` to delete the ingredient from the recipe, but not from the system. If no other recipes reference the ingredient, then it is garbage collected by the JVM at some point (the program does not deal with garbage collection). 
 - `add step <stepString>` to add one step at a time. <br>
 A future version will allow the addition of multiple ingredients and steps at once. 
 #### Export
