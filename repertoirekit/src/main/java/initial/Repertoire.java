@@ -24,6 +24,11 @@ public class Repertoire
     private ListMultimap<Section, Recipe> sections;
     private ListMultimap<Ingredient, Recipe> ingredients;
 
+    /**
+     * 
+     * @param bookName
+     * @param author
+     */
     public Repertoire(String bookName, String author)
     {
         this.author=author;
@@ -35,6 +40,12 @@ public class Repertoire
 
     }
 
+    /**
+     * 
+     * @param sectionName
+     * @param recipeName
+     * @return
+     */
     public boolean addRecipe(String sectionName, String recipeName)
     {
         if(++numRecipes>MAX_QUANTITY)
@@ -67,38 +78,12 @@ public class Repertoire
         }
     }
 
-    public boolean addRecipe(String recipeName, String sectionName)
-    {
-        if(++numRecipes>MAX_QUANTITY)
-        {
-            return false;
-        }
-        else
-        {
-            sectionName = sectionName.trim();
-            sectionName.toUpperCase();
-            Recipe newRecipe = new Recipe(recipeName, this);
-            Iterator<Section> sectionsIter = sections.keySet().iterator();
-            boolean isAdded=false;
-            while(sectionsIter.hasNext())
-            {
-                Section tempSec = sectionsIter.next();
-                if(tempSec.toString().equals(sectionName))
-                {
-                    sections.put(tempSec, newRecipe);
-                    isAdded=true;
-                }
-            }
-            if(isAdded==false)
-            {
-                Section newSection = new Section(sectionName);
-                sections.put(newSection, newRecipe);
-            }
-            input.close();
-            return true;
-        }
-    }
-
+    /**
+     * 
+     * @param recipeName
+     * @param thisSection
+     * @return
+     */
     public boolean addRecipe(String recipeName, Section thisSection)
     {
         if(++numRecipes>MAX_QUANTITY)
@@ -113,6 +98,12 @@ public class Repertoire
         }
     }
 
+    /**
+     * 
+     * @param thisSection
+     * @param thisRecipe
+     * @return
+     */
     public boolean addRecipe(Section thisSection, Recipe thisRecipe)
     {
         if(++numRecipes>MAX_QUANTITY)
@@ -126,6 +117,11 @@ public class Repertoire
         }
     }
 
+    /**
+     * 
+     * @param recipeName
+     * @return
+     */
     public boolean deleteRecipe(String recipeName)
     {
         Iterator<Section> sectionsIter = sections.keySet().iterator();
@@ -146,6 +142,12 @@ public class Repertoire
         return false;
     }
 
+    /**
+     * 
+     * @param sectionName
+     * @param recipeName
+     * @return
+     */
     public boolean deleteRecipe(String sectionName, String recipeName)
     {
         Section currSection=doesSectionExist(sectionName);
@@ -168,6 +170,13 @@ public class Repertoire
             return false;
         }
     }
+
+    /**
+     * 
+     * @param thisSection
+     * @param thisRecipe
+     * @return
+     */
     public boolean deleteRecipe(Section thisSection, Recipe thisRecipe)
     {
         if(sections.containsEntry(thisSection, thisRecipe))
@@ -181,6 +190,11 @@ public class Repertoire
         }
     }
 
+    /**
+     * 
+     * @param sectionName
+     * @return
+     */
     public Section doesSectionExist(String sectionName)
     {
         sectionName=sectionName.toUpperCase();
@@ -197,6 +211,11 @@ public class Repertoire
         return null;
     }
 
+    /**
+     * 
+     * @param recipeName
+     * @return
+     */
     public Recipe doesRecipeExist(String recipeName)
     {
         recipeName=recipeName.toUpperCase();
@@ -213,6 +232,11 @@ public class Repertoire
         return null;
     }
 
+    /**
+     * 
+     * @param ingredientName
+     * @return
+     */
     public Ingredient doesIngredientExist(String ingredientName)
     {
         ingredientName=ingredientName.toUpperCase();
@@ -229,21 +253,40 @@ public class Repertoire
         return null;
     }
 
+    /**
+     * 
+     * @return
+     */
     public Set<Ingredient> getIngredients()
     {
         return ingredients.keySet();
     }
 
+    /**
+     * 
+     * @param newIngredient
+     * @param newRecipe
+     */
     public void addIngredient(Ingredient newIngredient, Recipe newRecipe)
     {
         ingredients.put(newIngredient, newRecipe);
     }
 
+    /**
+     * 
+     * @param recipeName
+     * @return
+     */
     public Recipe getByName(String recipeName)
     {
         return doesRecipeExist(recipeName);
     }
 
+    /**
+     * 
+     * @param ingredientName
+     * @return 
+     */
     public Collection<Recipe> getByIngredient(String ingredientName)
     {
         Ingredient currIngredient = doesIngredientExist(ingredientName);
@@ -258,6 +301,11 @@ public class Repertoire
 
     }
 
+    /**
+     * 
+     * @param sectionName
+     * @return Collection of recipes that match the @param sectionName 
+     */
     public Collection<Recipe> getBySection(String sectionName)
     {
         Section currSection=doesSectionExist(sectionName);
@@ -271,12 +319,22 @@ public class Repertoire
         }
     }
 
+    /**
+     * 
+     * @param thisSection
+     * @return Collection of recipes that match the @param thisSection key
+     */
     public Collection<Recipe> getBySection(Section thisSection)
     {
         return sections.get(thisSection);
     }
 
-    public ArrayList<Recipe> getByTime(LocalTime thisTime)
+    /**
+     * 
+     * @param thisTime
+     * @return Collection of recipes that require less than or equal to the amount of time as stated by @param thisTime. 
+     */
+    public Collection<Recipe> getByTime(LocalTime thisTime)
     {
         ArrayList<Recipe> searchResults = new ArrayList<Recipe>();
         Iterator<Recipe> recipesIter=sections.values().iterator();
@@ -291,6 +349,11 @@ public class Repertoire
         return searchResults;
     }
 
+    /**
+     * 
+     * @param minutes
+     * @return collection of recipes that require less than or equal to the amount of time as stated by @param minutes.
+     */
     public Collection<Recipe> getByTime(int minutes)
     {
         ArrayList<Recipe> searchResults = new ArrayList<Recipe>();
@@ -307,6 +370,11 @@ public class Repertoire
         return searchResults;
     }
 
+    /**
+     * 
+     * @param query
+     * @return collection of recipes that match the search query
+     */
     public Collection<Recipe> searchEngine(String query)
     {
         ArrayList<Recipe> searchResults = new ArrayList<Recipe>();

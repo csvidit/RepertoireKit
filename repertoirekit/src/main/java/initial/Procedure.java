@@ -2,67 +2,56 @@ package initial;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class Procedure {
     
     private ArrayList<String> steps;
+    private static final String stepConsts[]={"Bake at ", " \u00B0C for ", " hours and "," minutes."};
 
     public Procedure()
     {
-        this.steps=null;
+        this.steps= new ArrayList<>();
     }
 
-    public Procedure(ArrayList<String> steps)
+    public Procedure(List<String> steps)
     {
-        this.steps=steps;
+        this.steps= (ArrayList<String>) steps;
+    }
+
+    public String createStep(String newStep)
+    {
+        String anotherStep;
+        if(newStep.substring(0, newStep.indexOf(" ")).equalsIgnoreCase("bake"))
+        {
+            String anotherStepWords[]=newStep.split(" ");
+            int hours=Integer.parseInt(anotherStepWords[2])/60;
+            int minutes=Integer.parseInt(anotherStepWords[2])%60;
+            if(hours==0)
+            {
+                anotherStep=stepConsts[0]+anotherStepWords[1]+stepConsts[1]+minutes+stepConsts[3];
+            }
+            else
+            {
+                anotherStep=stepConsts[0]+anotherStepWords[1]+stepConsts[1]+hours+stepConsts[2]+minutes+stepConsts[3];
+            }
+        }
+        else
+        {
+            anotherStep=newStep;
+        }
+        return anotherStep;
     }
 
     public void addStep(String newStep)
     {
-        String anotherStep;
-        if(newStep.substring(0, newStep.indexOf(" ")).equalsIgnoreCase("bake"))
-        {
-            String anotherStepWords[]=newStep.split(" ");
-            int hours=Integer.parseInt(anotherStepWords[2])/60;
-            int minutes=Integer.parseInt(anotherStepWords[2])%60;
-            if(hours==0)
-            {
-                anotherStep="Bake at "+anotherStepWords[1]+" \u00B0C for "+minutes+" minutes.";
-            }
-            else
-            {
-                anotherStep="Bake at "+anotherStepWords[1]+" \u00B0C for "+hours+" and "+minutes+" minutes.";
-            }
-        }
-        else
-        {
-            anotherStep=newStep;
-        }
-        steps.add(anotherStep);
+        
+        steps.add(createStep(newStep));
     }
 
     public void addStepAt(String newStep, int index)
     {
-        String anotherStep;
-        if(newStep.substring(0, newStep.indexOf(" ")).equalsIgnoreCase("bake"))
-        {
-            String anotherStepWords[]=newStep.split(" ");
-            int hours=Integer.parseInt(anotherStepWords[2])/60;
-            int minutes=Integer.parseInt(anotherStepWords[2])%60;
-            if(hours==0)
-            {
-                anotherStep="Bake at "+anotherStepWords[1]+" \u00B0C for "+minutes+" minutes.";
-            }
-            else
-            {
-                anotherStep="Bake at "+anotherStepWords[1]+" \u00B0C for "+hours+" and "+minutes+" minutes.";
-            }
-        }
-        else
-        {
-            anotherStep=newStep;
-        }
-        steps.add(index, anotherStep);
+        steps.add(index, createStep(newStep));
     }
 
     public void addStepFromFile(String newStep)
@@ -89,8 +78,5 @@ public class Procedure {
         }
         return toString;
     }
-
-
-
 
 }

@@ -11,7 +11,7 @@ public class Recipe{
     private FileWriter writer;
     private String recipeName;
     private LocalTime estimatedTime;
-    private ArrayList<Quantity> ingredients;
+    private ArrayList<Quantity> quantities;
     private Repertoire repertoire;
     private Procedure procedure;
 
@@ -19,6 +19,8 @@ public class Recipe{
     {
         this.recipeName=recipeName;
         this.repertoire=repertoire;
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
     }
     
     public Recipe(String recipeName, LocalTime estimatedTime, Repertoire repertoire)
@@ -26,7 +28,9 @@ public class Recipe{
         this.recipeName=recipeName;
         this.estimatedTime=estimatedTime;
         this.repertoire=repertoire;
-        recipeFile= new File(this.recipeName+".txt");
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
+        /*recipeFile= new File(this.recipeName+".txt");
         try 
         {
             recipeFile.createNewFile();
@@ -37,7 +41,27 @@ public class Recipe{
         catch (IOException ioe) 
         {
             System.err.print("Input/Output Stream Error. Please resolve issues and then run the program");
-        }
+        }*/
+    }
+
+    public Recipe(String recipeName, LocalTime estimatedTime, Section thisSection, Repertoire repertoire, File recipeFile)
+    {
+        this.recipeName=recipeName;
+        this.estimatedTime=estimatedTime;
+        this.section=section;
+        this.repertoire=repertoire;
+        this.recipeFile=recipeFile;
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
+    }
+
+    public Recipe(String recipeName, Section thisSection, Repertoire repertoire, File recipeFile)
+    {
+        this.recipeName=recipeName;
+        this.repertoire=repertoire;
+        this.recipeFile=recipeFile;
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
     }
 
     public void setTime(LocalTime estimatedTime)
@@ -70,17 +94,31 @@ public class Recipe{
         procedure.addStepFromFile(newStep);
     }
 
-    public void 
-
     public String getIngredientString()
     {
         String ingredientString="";
-        Iterator<Quantity> ingredientsIter = ingredients.iterator();
+        Iterator<Quantity> ingredientsIter = quantities.iterator();
         while(ingredientsIter.hasNext())
         {
             ingredientString+=(ingredientsIter.next().getIngredientName()+" ");
         }
         return ingredientString;
+    }
+
+    public Procedure getProcedure()
+    {
+        return procedure;
+    }
+
+    public void addIngredient(String ingredientName, float quantity, Units unit)
+    {
+        Ingredient newIngredient = repertoire.doesIngredientExist(ingredientName);
+        if(newIngredient==null)
+        {
+            newIngredient = new Ingredient (ingredientName);
+        }
+        Quantity newQuantity = new Quantity(newIngredient, quantity, unit);
+        quantities.add(newQuantity);
     }
 
     @Override
@@ -91,7 +129,7 @@ public class Recipe{
     }
 
     //public void addIngredient() throws IOException
-    public void addIngredient(Ingredient newIngredient)
+    /*public void addIngredient(Ingredient newIngredient)
     {
         Scanner input = new Scanner(System.in);
         String newIngredient;
@@ -158,6 +196,26 @@ public class Recipe{
         writer.write(updatedContent);
         }
 
+    }*/
+
+    public void addQuantity(Ingredient ingredient, float quantity, Units unit)
+    {
+        Quantity newQuantity = new Quantity(ingredient, quantity, unit);
+        if(quantityExists(newQuantity))
+        quantities.add(newQuantity);
+    }
+
+    public boolean quantityExists(Quantity anotherQuantity)
+    {
+        Iterator<Quantity> quantitiesIter = quantities.iterator();
+        while(quantitiesIter.hasNext())
+        {
+            if(quantitiesIter.next().equals(anotherQuantity))
+            {
+                return true;
+            }
+        }
+        return false;
     }
     
 }
