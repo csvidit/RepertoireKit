@@ -7,16 +7,20 @@ import java.nio.file.Files;
 public class Recipe{
     
     private File recipeFile;
+    private Section section;
     private FileWriter writer;
     private String recipeName;
     private LocalTime estimatedTime;
-    private ArrayList<Quantity> ingredients;
+    private ArrayList<Quantity> quantities;
     private Repertoire repertoire;
+    private Procedure procedure;
 
     public Recipe(String recipeName, Repertoire repertoire)
     {
         this.recipeName=recipeName;
         this.repertoire=repertoire;
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
     }
     
     public Recipe(String recipeName, LocalTime estimatedTime, Repertoire repertoire)
@@ -24,7 +28,9 @@ public class Recipe{
         this.recipeName=recipeName;
         this.estimatedTime=estimatedTime;
         this.repertoire=repertoire;
-        recipeFile= new File(this.recipeName+".txt");
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
+        /*recipeFile= new File(this.recipeName+".txt");
         try 
         {
             recipeFile.createNewFile();
@@ -35,7 +41,27 @@ public class Recipe{
         catch (IOException ioe) 
         {
             System.err.print("Input/Output Stream Error. Please resolve issues and then run the program");
-        }
+        }*/
+    }
+
+    public Recipe(String recipeName, LocalTime estimatedTime, Section thisSection, Repertoire repertoire, File recipeFile)
+    {
+        this.recipeName=recipeName;
+        this.estimatedTime=estimatedTime;
+        this.section=section;
+        this.repertoire=repertoire;
+        this.recipeFile=recipeFile;
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
+    }
+
+    public Recipe(String recipeName, Section thisSection, Repertoire repertoire, File recipeFile)
+    {
+        this.recipeName=recipeName;
+        this.repertoire=repertoire;
+        this.recipeFile=recipeFile;
+        this.quantities = new ArrayList<Quantity>();
+        this.procedure = new Procedure();
     }
 
     public void setTime(LocalTime estimatedTime)
@@ -43,13 +69,67 @@ public class Recipe{
         this.estimatedTime=estimatedTime;
     }
 
+    public void setTime(int hours, int minutes, int seconds)
+    {
+        this.estimatedTime=LocalTime.of(hours, minutes, seconds);
+    }
+
     public LocalTime getTime()
     {
         return estimatedTime;
     }
 
+    public String getName()
+    {
+        return recipeName;
+    }
+
+    public void getName(String newRecipeName)
+    {
+        recipeName=newRecipeName;
+    }
+
+    public void setToProcedureFromFile(String newStep)
+    {
+        procedure.addStepFromFile(newStep);
+    }
+
+    public String getIngredientString()
+    {
+        String ingredientString="";
+        Iterator<Quantity> ingredientsIter = quantities.iterator();
+        while(ingredientsIter.hasNext())
+        {
+            ingredientString+=(ingredientsIter.next().getIngredientName()+" ");
+        }
+        return ingredientString;
+    }
+
+    public Procedure getProcedure()
+    {
+        return procedure;
+    }
+
+    public void addIngredient(String ingredientName, float quantity, Units unit)
+    {
+        Ingredient newIngredient = repertoire.doesIngredientExist(ingredientName);
+        if(newIngredient==null)
+        {
+            newIngredient = new Ingredient (ingredientName);
+        }
+        Quantity newQuantity = new Quantity(newIngredient, quantity, unit);
+        quantities.add(newQuantity);
+    }
+
+    @Override
+    public boolean equals(Recipe anotherRecipe) {
+        
+        if(this.recipeName.equalsIgnoreCase(anotherRecipe.getName()) && this.getTime().equals(anotherRecipe.getTime()) && /*incomplete*/)
+
+    }
+
     //public void addIngredient() throws IOException
-    public void addIngredient(Ingredient newIngredient)
+    /*public void addIngredient(Ingredient newIngredient)
     {
         Scanner input = new Scanner(System.in);
         String newIngredient;
@@ -66,7 +146,7 @@ public class Recipe{
             inputWords=newIngredient.split(" ");
             Ingredient inputIngredient = new Ingredient(inputWords[0]);
             boolean doesExist=false;;
-            Iterator quantityIter = ingredients.iterator();
+            Iterator<Quantity> quantityIter = ingredients.iterator();
             while(quantityIter.hasNext())
             {
                 if(((Quantity) quantityIter.next()).getIngredientName().equals(inputWords[0]))
@@ -116,8 +196,26 @@ public class Recipe{
         writer.write(updatedContent);
         }
 
+    }*/
+
+    public void addQuantity(Ingredient ingredient, float quantity, Units unit)
+    {
+        Quantity newQuantity = new Quantity(ingredient, quantity, unit);
+        if(quantityExists(newQuantity))
+        quantities.add(newQuantity);
     }
 
-
+    public boolean quantityExists(Quantity anotherQuantity)
+    {
+        Iterator<Quantity> quantitiesIter = quantities.iterator();
+        while(quantitiesIter.hasNext())
+        {
+            if(quantitiesIter.next().equals(anotherQuantity))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     
 }
