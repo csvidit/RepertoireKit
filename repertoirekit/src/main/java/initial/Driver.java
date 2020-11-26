@@ -1,16 +1,97 @@
 package initial;
 
 import java.util.*;
+
+import com.google.common.io.Files;
+
 import java.time.*;
 import java.io.*;
+import java.nio.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 public class Driver {
+
+    public static Repertoire book;
+
+    public static void loadBook() {
+
+        book = new Repertoire("My Book", "Vidit Khandelwal");
+        File directoryPath = new File("C:\\Users\\vidit\\recipes");
+        File filesList[] = directoryPath.listFiles();
+        for (int i = 0; i < filesList.length; i++) {
+            File currFile = filesList[i];
+            loadFile(currFile);
+        }
+    }
+
+    public static void loadFile(File currFile) {
+        String fileName = currFile.getName();
+        String recipeName = Files.getNameWithoutExtension(fileName);
+
+        try {
+            if (recipeName.equals(Files.asCharSource(currFile, StandardCharsets.UTF_8).readFirstLine())) {
+                try {
+                    List<String> fileLinesList = Files.asCharSource(currFile, StandardCharsets.UTF_8).readLines();
+                    Iterator<String> fileLinesListIter = fileLinesList.iterator();
+                    String temp, tempWords[];
+                    fileLinesListIter.next();
+                    temp=fileLinesListIter.next();
+                    Section newSection = book.doesSectionExist(temp);
+                    if(newSection==null)
+                    {
+                        newSection=new Section(temp);
+                    }
+                    Recipe newRecipe = new Recipe(recipeName, newSection, book, currFile);
+                    book.deleteRecipe(newSection, newRecipe);
+                    temp = fileLinesListIter.next();
+                    tempWords=temp.split(" ");
+                    newRecipe.setTime(LocalTime.of(Integer.parseInt(tempWords[0]), Integer.parseInt(tempWords[1]), Integer.parseInt(tempWords[2])));
+                    fileLinesListIter.next();
+                    temp = fileLinesListIter.next();
+                    while (temp.equals("Procedure:") == false && fileLinesListIter.hasNext()) {
+                        tempWords = temp.split(" ");
+                        String ingredientName = tempWords[0];
+                        float quantity = Float.parseFloat(tempWords[1]);
+                        Units unit = Enum.valueOf(Units.class, tempWords[2].toUpperCase());
+                        newRecipe.addIngredient(ingredientName, quantity, unit);
+                        temp = fileLinesListIter.next();
+                    }
+                    temp = fileLinesListIter.next();
+                    while (temp.equals("--endl--") == false && fileLinesListIter.hasNext()) {
+                        newRecipe.getProcedure().addStepFromFile(temp);
+                        temp = fileLinesListIter.next();
+                    }
+                } catch (IOException e) {
+                    System.err.print("\nIOException in Driver.loadFile");
+                    return;
+                }
+            } else {
+                System.err.print("\nRepertoireKit error : File Name does not match Recipe Name or other such error.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.err.print("\nNumber Format Exception found.");
+        } catch (IOException e) {
+            System.out.print("\nIO Exception found.");
+        }
+            
+    }
+
+    public static void main(String[] args) {
+
+        System.out.print("\nPlease wait while RepertoireKit loads...");
+        loadBook();
+    }
     
-    public static void main(String[] args) 
+    /*public static void main(String[] args) 
     {
-        Repertoire book = new Repertoire("Croquembouche", "Vidit Khandelwal");
+        System.out.print("\nPlease wait while RepertoireKit loads...");
+        loadBook();
+        
         Scanner sc = new Scanner(System.in);
-        System.out.print("\nWelcome to Vidit Khandelwal's RecipeKit Recipe Management System.");
+        System.out.print("\nWelcome to Vidit Khandelwal's RepertoireKit Recipe Management System."+
+        "\nRepertoireKit is available at https://github.com/csvidit/RepertoireKit under the MIT License");
         while(true)
         {
             String command="", commWords[]=null, secComm="", tertComm="", tertCommWords[]=null, quartComm="", quinComm="", quinCommWords[]=null;
@@ -25,48 +106,45 @@ public class Driver {
                 System.out.print("\nBye!");
                 break;
                 case "search":
-                switch(commWords[1])
+                Collection<Recipe> searchResults = book.searchEngine(command.substring(command.indexOf(" ")+1));
+                System.out.print("\n"+searchResults.size()+" results were found: \n");
+                Iterator<Recipe> searchResultsIter = searchResults.iterator();
+                for(int i=1; searchResultsIter.hasNext(); i++)
                 {
-                    case "ingredient":
-                    case "Ingredient":
-                    case "INGREDIENT":
-                    case "iNGREDIENT":
-                    System.out.print("\n"+book.getByIngredient(commWords[2]).toString());
-                    System.out.print("\nEnter the name of the recipe you want to see: ");
-                    secComm=sc.nextLine();
-                    if(secComm.equalsIgnoreCase("exit"))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        System.out.print("\n"+book.getByName(secComm).toString());
-                    }
-                    break;
-                    case "recipe":
-                    case "Recipe":
-                    case "RECIPE":
-                    case "rECIPE":
-                    System.out.print("\n"+book.getByName(command.substring(command.indexOf(" ",2)+1)).toString());
-                    break;
-                    case "section":
-                    case "Section":
-                    case "SECTION":
-                    case "sECTION":
-                    System.out.print("\n"+book.getBySection(commWords[2]).toString());
-                    System.out.print("\nEnter the name of the recipe you want to see: ");
-                    secComm=sc.nextLine();
-                    if(secComm.equalsIgnoreCase("exit"))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        System.out.print("\n"+book.getByName(secComm).toString());
-                        currRecipe=book.getByName(secComm);
-                    }
+                    System.out.print("\n"+searchResultsIter+i+". "+searchResultsIter.next().getName());
+                }
+                searchResultsIter.next();
+                System.out.print("\nEnter the number corresponding the recipe you want to see: ");
+                secComm=sc.nextLine();
+                if(secComm.equalsIgnoreCase("exit") || secComm.equalsIgnoreCase("exit all"))
+                {
                     break;
                 }
+                else
+                {
+                    int secCommInt=Integer.parseInt(secComm);
+                    if(secCommInt>searchResults.size())
+                    {
+                        System.err.print("\nInvalid index.");
+                        break;
+                    }
+                    else
+                    {
+                        for(int i=1; searchResultsIter.hasNext(); i++)
+                        {
+                            if(i==secCommInt)
+                            {
+                                currRecipe=searchResultsIter.next()
+                                System.out.print("\n"+currRecipe.toString());
+                                
+                            }
+                        }
+                    }
+
+                }
+
+
+
                 case "delete":
                 System.out.print("\nAre you sure you want to delete this? (Y/N): ");
                 secComm=sc.nextLine();
@@ -93,7 +171,7 @@ public class Driver {
                 /*if(commWords.length>1)
                 {
                     secComm=command.substring(command.indexOf(" ",2)+1);
-                }*/
+                }*|
                 while(true)
                 {
                     System.out.print("\nYou are currently in the recipe edit wizard.\nEnter \"exit\" to exit the wizard. Enter \"exit recipe\" to go back to main console. \"exit all\" to close the Recipe System.\nEnter command: ");
@@ -158,20 +236,13 @@ public class Driver {
                                     book.addIngredient(newIngredient, currRecipe);
                                     currRecipe.addIngredient();
                                     
-                                }*/
+                                }*|
                                 
 
                             }
-
-
                         }
                     }
                 }
-                
-
-
-
-
             }
             if(command.equalsIgnoreCase("exit"))
             {
@@ -179,6 +250,6 @@ public class Driver {
             }
         }
 
-    }
+    }*/
 
 }
