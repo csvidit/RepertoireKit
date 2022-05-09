@@ -1,4 +1,5 @@
 # RepertoireKit
+## This project has been shelved, and the idea is now being materialized in the form of an Android app, [Repertoire](https://github.com/csvidit/Repertoire). 
 A CLI Recipe Management System, made using a Java Maven Project. The program saves data in the form of `.txt` files from which information is loaded into different objects for manipulation. When the user exits the program, any files whose data had been updated are re-written, and the other files are left as they were. 
 
 ### Version 0.0.1 Coming Soon (Source code in this repository is not useful at the moment)
